@@ -1,4 +1,5 @@
-# Script de Captura e Geração de PDF (Resolução 1366x768)
+# Script de Captura e Geração de PDF
+(Resolução 1366x768)
 
 ## Descrição
 
