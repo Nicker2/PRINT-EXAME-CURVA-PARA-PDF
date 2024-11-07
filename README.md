@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Este script foi desenvolvido para automatizar a captura de uma parte da tela de um computador, processar a imagem capturada e gerar um PDF com essa imagem, incluindo informações do paciente, data e hora. O objetivo principal é realizar uma "medida de curva tensional diária" de maneira rápida e eficiente. Quando ativado, o script captura a tela do Internet Explorer, cria o PDF com o conteúdo e o abre automaticamente.
+Este script foi desenvolvido para automatizar a captura de uma parte da tela de um computador, processar a imagem capturada e gerar um PDF com essa imagem, incluindo informações do paciente, data e hora. O objetivo principal é realizar uma "medida de curva tensional diária" de maneira rápida e eficiente. Quando ativado, o script captura parte da tela do Internet Explorer, cria o PDF com o conteúdo e o abre automaticamente.
 
 ### Funcionalidades:
 1. **Captura de Tela:** O script captura a parte da tela definida (no caso a tabela gerada pela máquina que realiza Tonometria) em momentos específicos, quando pressionadas as teclas F9 ou Scroll Lock.
