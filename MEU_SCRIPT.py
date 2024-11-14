@@ -1,4 +1,4 @@
-﻿import mss
+import mss
 import numpy as np
 from PIL import Image
 import keyboard
@@ -15,6 +15,7 @@ import pyautogui
 
 # Caminhos para salvar o PDF e a imagem
 pdf_path_f9 = "D:\\Meus Documentos\\Área de Trabalho\\EXAMES CURVA\\01 MEDIDA CURVA - PACIENTE - FUNCIONARIO.pdf"
+pdf_path_f8 = "D:\\Meus Documentos\\Área de Trabalho\\EXAMES CURVA\\01 MEDIDA CURVA - NOMEPACIENTE - NICOLAS BORGES 2110691 TE.pdf"
 pdf_path_scroll_lock = "D:\\Meus Documentos\\Área de Trabalho\\EXAMES CURVA\\01 MEDIDA CURVA - PACIENTE - FUNCIONARIO.pdf"  # Caminho do PDF para Scroll Lock
 image_path = "D:\\Meus Documentos\\Documentos\\Nova pasta\\IMAGEMTEMP\\captura.bmp"
 
@@ -156,6 +157,39 @@ def on_f9(event):
         open_ie()
         time.sleep(1)
 
+def on_f8(event):
+    global notification_capture
+    notification_capture = show_notification("TIRANDO PRINT PRA PDF", bg_color="red", text_color="white", width=450, height=150)
+
+    if is_ie_open():
+        if activate_ie():
+            click_middle_of_screen()
+            press_end()
+            time.sleep(0.05)
+            capture_screen(x, y, width, height)
+            create_pdf(image_path, pdf_path_f8)
+            hide_all_notifications()  # Esconde todas as notificações
+
+            notification_pdf = show_notification("PDF CRIADO COM SUCESSO", bg_color="green", text_color="white", width=450, height=150)
+            time.sleep(1)
+            hide_all_notifications()  # Esconde todas as notificações
+            os.startfile(pdf_path_f8)
+            print(f"PDF criado com sucesso em: {pdf_path_f8}")
+        else:
+            hide_all_notifications()  # Esconde todas as notificações
+            error_notification = show_notification("ERRO AO ATIVAR IE", bg_color="orange", text_color="white", width=450, height=150)
+            time.sleep(1)
+            hide_all_notifications()  # Esconde todas as notificações
+            print("Não foi possível ativar a janela do Internet Explorer.")
+    else:
+        hide_all_notifications()  # Esconde todas as notificações
+        error_notification = show_notification("IE NÃO ABERTO", bg_color="orange", text_color="white", width=450, height=150)
+        time.sleep(1)
+        hide_all_notifications()  # Esconde todas as notificações
+        print("O Internet Explorer não está aberto. Abrindo agora...")
+        open_ie()
+        time.sleep(1)
+
 def on_scroll_lock(event):
     global notification_capture
     notification_capture = show_notification("TIRANDO PRINT PRA PDF", bg_color="red", text_color="white", width=450, height=150)
@@ -192,9 +226,23 @@ def on_scroll_lock(event):
         time.sleep(1)
         hide_all_notifications()  # Esconde todas as notificações
 
-# Configuração do listener de teclado
-keyboard.add_hotkey('f9', on_f9)
-keyboard.add_hotkey('scrolllock', on_scroll_lock)
+def main():
+    global x, y, width, height
+    x = 364  # Posição x
+    y = 504  # Posição y
+    width = 623  # Largura da captura
+    height = 170  # Altura da captura
 
-# Manter o script rodando
-keyboard.wait()
+    print("Pressione F9 para capturar a tela e salvar como 01 MEDIDA CURVA - PACIENTE - FUNCIONARIO.pdf")
+    print("Pressione F8 para capturar a tela e salvar como '01 MEDIDA CURVA - NOMEPACIENTE - NICOLAS BORGES 2110691 TE.pdf'")
+    print("Pressione Scroll Lock para capturar a tela e salvar como '01 MEDIDA CURVA - PACIENTE - FUNCIONARIO.pdf'")
+
+    keyboard.on_press_key('f9', on_f9)
+    keyboard.on_press_key('f8', on_f8)
+    keyboard.on_press_key('scroll lock', on_scroll_lock)
+
+    # Mantenha o programa em execução
+    keyboard.wait()
+
+if __name__ == "__main__":
+    main()
