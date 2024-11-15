@@ -209,7 +209,7 @@ def on_f9(event):
         if activate_ie():
             click_middle_of_screen()
             press_end()
-            time.sleep(0.05)
+            time.sleep(0.5)
             capture_screen(x, y, width, height)
             create_pdf(image_path, pdf_path_f9)
             hide_all_notifications()  # Esconde todas as notificações
@@ -244,7 +244,7 @@ def on_f8(event):
         if activate_ie():
             click_middle_of_screen()
             press_end()
-            time.sleep(0.05)
+            time.sleep(0.5)
             capture_screen(x, y, width, height)
             create_pdf(image_path, pdf_path_f8)
             hide_all_notifications()  # Esconde todas as notificações
@@ -280,7 +280,7 @@ def on_scroll_lock(event):
         if activate_ie():
             click_middle_of_screen()
             press_end()
-            time.sleep(0.05)
+            time.sleep(0.5)
             x_scroll_lock = 372
             y_scroll_lock = 464
             width_scroll_lock = 606  # 978 - 372
