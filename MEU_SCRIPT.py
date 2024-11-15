@@ -12,6 +12,10 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from datetime import datetime
 import pyautogui
+import shutil
+from tkinter import simpledialog
+from tkinter import messagebox
+
 
 # Caminhos para salvar o PDF e a imagem
 pdf_path_f9 = "D:\\Meus Documentos\\Área de Trabalho\\EXAMES CURVA\\01 MEDIDA CURVA - PACIENTE - FUNCIONARIO.pdf"
@@ -124,6 +128,79 @@ def hide_all_notifications():
             root.destroy()
     notifications.clear()
 
+def rename_pdf(pdf_path):
+# Janela do Tkinter personalizada
+    def on_rename():
+        new_name = entry.get()
+        if new_name:
+            new_path = os.path.join(os.path.dirname(pdf_path), f"{new_name}.pdf")
+            try:
+                os.rename(pdf_path, new_path)
+                #messagebox.showinfo("Sucesso", f"Arquivo renomeado para:\n{new_name}.pdf")
+                root.destroy()
+                os.startfile(os.path.dirname(new_path))  # Abre a pasta contendo o arquivo
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao renomear o arquivo:\n{e}")
+
+    def on_cancel():
+        root.destroy()
+
+    root = tk.Tk()
+    root.title("Renomear PDF")
+    root.geometry("750x250")
+
+    # Obtém o tamanho da tela
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+
+    # Obtém as dimensões da janela
+    window_width = 750
+    window_height = 250
+
+    # Calcula as posições X e Y para centralizar a janela
+    x_position = (screen_width // 2) - (window_width // 2)
+    y_position = (screen_height // 2) - (window_height // 2)
+
+    # Define a geometria da janela com a posição centralizada
+    root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+    root.attributes('-topmost', True)
+    root.config(bg="lightblue")
+
+    # Texto explicativo
+    label = tk.Label(root, text="Escreva o nome do arquivo\nExemplo:\n01 MEDIDA CURVA - PACIENTE - FUNCIONARIO 123456 TE",
+                     font=("Helvetica", 18, "bold"), bg="lightblue", fg="black")
+    label.pack(pady=20)
+
+    # Campo de texto preenchido com o nome padrão
+    entry = tk.Entry(root, font=("Helvetica", 18), width=45)
+    entry.insert(0, "01 MEDIDA CURVA - PACIENTE - FUNCIONARIO")
+    entry.pack(pady=10)
+
+    # Botões OK e Cancelar
+    button_frame = tk.Frame(root, bg="lightblue")
+    button_frame.pack(pady=10)
+
+    ok_button = tk.Button(button_frame, text="OK", font=("Helvetica", 16, "bold"), command=on_rename)
+    ok_button.pack(side="left", padx=20)
+    root.bind('<Return>', lambda event: ok_button.invoke())
+
+    cancel_button = tk.Button(button_frame, text="Cancelar", font=("Helvetica", 16, "bold"), command=on_cancel)
+    cancel_button.pack(side="right", padx=20)
+    # Configurando o ESC para cancelar
+    root.bind('<Escape>', lambda event: cancel_button.invoke())
+
+    # Garantir que a janela seja exibida e ganhe foco
+    root.after(20, root.deiconify)  # Mostrar a janela
+
+    # Garantir que o foco seja dado após a janela ser renderizada
+    root.after(20, lambda: entry.focus())  # Atrasar o foco para o carregamento
+
+    # Selecionar a parte específica do texto
+    root.after(20, lambda: entry.select_range(18, tk.END))  # Selecionar o texto de "PACIENTE - FUNCIONARIO"
+
+    root.mainloop()
+
 def on_f9(event):
     global notification_capture
     notification_capture = show_notification("TIRANDO PRINT PRA PDF", bg_color="red", text_color="white", width=450, height=150)
@@ -138,10 +215,12 @@ def on_f9(event):
             hide_all_notifications()  # Esconde todas as notificações
 
             notification_pdf = show_notification("PDF CRIADO COM SUCESSO", bg_color="green", text_color="white", width=450, height=150)
-            time.sleep(1)
+            #time.sleep(1)
             os.startfile(pdf_path_f9)
+            time.sleep(1)
             hide_all_notifications()  # Esconde todas as notificações
             print(f"PDF criado com sucesso em: {pdf_path_f9}")
+            rename_pdf(pdf_path_f9)
         else:
             hide_all_notifications()  # Esconde todas as notificações
             error_notification = show_notification("ERRO AO ATIVAR IE", bg_color="orange", text_color="white", width=450, height=150)
@@ -174,7 +253,10 @@ def on_f8(event):
             time.sleep(1)
             hide_all_notifications()  # Esconde todas as notificações
             os.startfile(pdf_path_f8)
+            time.sleep(1)
             print(f"PDF criado com sucesso em: {pdf_path_f8}")
+            hide_all_notifications()  # Esconde todas as notificações
+            rename_pdf(pdf_path_f8)
         else:
             hide_all_notifications()  # Esconde todas as notificações
             error_notification = show_notification("ERRO AO ATIVAR IE", bg_color="orange", text_color="white", width=450, height=150)
@@ -209,10 +291,12 @@ def on_scroll_lock(event):
             hide_all_notifications()  # Esconde todas as notificações
 
             notification_pdf = show_notification("PDF CRIADO COM SUCESSO", bg_color="green", text_color="white", width=450, height=150)
-            time.sleep(1)
+            #time.sleep(1)
             os.startfile(pdf_path_scroll_lock)
-            hide_all_notifications()  # Esconde todas as notificações
+            time.sleep(1)
             print(f"PDF criado com sucesso em: {pdf_path_scroll_lock}")
+            hide_all_notifications()  # Esconde todas as notificações
+            rename_pdf(pdf_path_scroll_lock)
         else:
             hide_all_notifications()  # Esconde todas as notificações
             error_notification = show_notification("ERRO AO ATIVAR IE", bg_color="orange", text_color="white", width=450, height=150)
@@ -221,7 +305,7 @@ def on_scroll_lock(event):
             print("Não foi possível ativar a janela do Internet Explorer.")
     else:
         hide_all_notifications()  # Esconde todas as notificações
-        error_notification = show_notification("IE NÃO ABERTO. ABRINDO AGORA...", bg_color="orange", text_color="white", width=450, height=150)
+        error_notification = show_notification("IE NÃO ABERTO. ABRINDO AGORA...", bg_color="orange", text_color="white", width=650, height=150)
         open_ie()
         time.sleep(1)
         hide_all_notifications()  # Esconde todas as notificações
