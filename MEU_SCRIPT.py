@@ -15,6 +15,8 @@ import pyautogui
 import shutil
 from tkinter import simpledialog
 from tkinter import messagebox
+import random
+import math
 
 
 # Caminhos para salvar o PDF e a imagem
@@ -128,6 +130,12 @@ def hide_all_notifications():
             root.destroy()
     notifications.clear()
 
+
+# Definir as variáveis globais
+start_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+end_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+transition_factor = 0  # Fator de transição de 0 a 1
+
 def rename_pdf(pdf_path):
 # Janela do Tkinter personalizada
     def on_rename():
@@ -145,9 +153,61 @@ def rename_pdf(pdf_path):
     def on_cancel():
         root.destroy()
 
+
+
+    # Função para interpolar entre duas cores
+    def interpolate_color(color1, color2, factor):
+        return (
+            int(color1[0] + (color2[0] - color1[0]) * factor),
+            int(color1[1] + (color2[1] - color1[1]) * factor),
+            int(color1[2] + (color2[2] - color1[2]) * factor)
+        )
+
+    # Função para gerar cores suaves (dentro do intervalo de 150 a 200)
+    def generate_soft_color():
+        # Gera componentes de cor no intervalo entre 150 e 200
+        r = random.randint(150, 200)
+        g = random.randint(150, 200)
+        b = random.randint(150, 200)
+
+        # Garante que os valores de R, G e B não sejam muito próximos (evitando cinza)
+        while abs(r - g) < 40 and abs(g - b) < 40 and abs(b - r) < 40:
+            # Regenera as cores se estiverem muito próximas (cinza)
+            r = random.randint(150, 200)
+            g = random.randint(150, 200)
+            b = random.randint(150, 200)
+
+        return r, g, b
+
+    # Função para atualizar a cor de fundo com transição suave
+    def smooth_bg_transition(start_color, end_color, transition_factor, label, button_frame):
+        # Interpolando entre start_color e end_color com base no fator de transição
+        new_color = interpolate_color(start_color, end_color, transition_factor)
+        color_hex = f'#{new_color[0]:02x}{new_color[1]:02x}{new_color[2]:02x}'
+
+        # Aplicando a cor de fundo no root e nos componentes internos
+        root.config(bg=color_hex)
+        label.config(bg=color_hex)
+        button_frame.config(bg=color_hex)
+
+        # Atualizando o fator de transição
+        transition_factor += 0.01
+        if transition_factor > 1:
+            transition_factor = 0  # Resetando o fator e trocando as cores
+            start_color = end_color
+            end_color = generate_soft_color()  # Gera novas cores suaves para a transição
+
+        # Chama a função novamente após 20 milissegundos (para suavidade)
+        root.after(30, lambda: smooth_bg_transition(start_color, end_color, transition_factor, label, button_frame))
+
     root = tk.Tk()
     root.title("Renomear PDF")
     root.geometry("750x250")
+
+    # Definindo as cores de início e fim
+    start_color = generate_soft_color()  # Cor inicial suave
+    end_color = generate_soft_color()  # Cor final suave
+    transition_factor = 0  # Fator de transição de 0 a 1
 
     # Obtém o tamanho da tela
     screen_width = root.winfo_screenwidth()
@@ -165,7 +225,7 @@ def rename_pdf(pdf_path):
     root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
     root.attributes('-topmost', True)
-    root.config(bg="lightblue")
+    #root.config(bg="lightblue")
 
     # Texto explicativo
     label = tk.Label(root, text="Escreva o nome do arquivo\nExemplo:\n01 MEDIDA CURVA - PACIENTE - FUNCIONARIO 123456 TE",
@@ -184,6 +244,9 @@ def rename_pdf(pdf_path):
     ok_button = tk.Button(button_frame, text="OK", font=("Helvetica", 16, "bold"), command=on_rename)
     ok_button.pack(side="left", padx=20)
     root.bind('<Return>', lambda event: ok_button.invoke())
+
+    # Iniciar o efeito de transição suave
+    smooth_bg_transition(start_color, end_color, transition_factor, label, button_frame)
 
     cancel_button = tk.Button(button_frame, text="Cancelar", font=("Helvetica", 16, "bold"), command=on_cancel)
     cancel_button.pack(side="right", padx=20)
