@@ -17,6 +17,7 @@ from tkinter import simpledialog
 from tkinter import messagebox
 import random
 import math
+import re  # Importando para usar expressões regulares
 
 
 # Caminhos para salvar o PDF e a imagem
@@ -137,22 +138,52 @@ end_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 2
 transition_factor = 0  # Fator de transição de 0 a 1
 
 def rename_pdf(pdf_path):
-# Janela do Tkinter personalizada
+    # Janela do Tkinter personalizada
     def on_rename():
         new_name = entry.get()
         if new_name:
+            # Obtém a extensão do arquivo original
+            base_name, ext = os.path.splitext(pdf_path)
+
+            # Novo caminho para o arquivo renomeado com a extensão .pdf
             new_path = os.path.join(os.path.dirname(pdf_path), f"{new_name}.pdf")
+
+            # Verifica se o arquivo já existe
+            if os.path.exists(new_path):
+                # Tenta extrair o número no começo do nome com regex
+                match = re.match(r"(\d{2})\s*(.*)", new_name)  # Match para números de 2 dígitos no início
+
+                if match:
+                    # Extrai o número e o restante do nome
+                    number = int(match.group(1))
+                    remaining_name = match.group(2)
+
+                    # Incrementa o número
+                    new_name = f"{number + 1:02d} {remaining_name}"
+                    new_path = os.path.join(os.path.dirname(pdf_path), f"{new_name}.pdf")
+
+                    # Verifica novamente se o arquivo já existe
+                    while os.path.exists(new_path):
+                        # Incrementa novamente se ainda existir
+                        number += 1
+                        new_name = f"{number:02d} {remaining_name}"
+                        new_path = os.path.join(os.path.dirname(pdf_path), f"{new_name}.pdf")
+
+                else:
+                    print("Erro", "O nome do arquivo não contém um número no início.")
+                    return
+
             try:
                 os.rename(pdf_path, new_path)
-                #messagebox.showinfo("Sucesso", f"Arquivo renomeado para:\n{new_name}.pdf")
                 root.destroy()
                 os.startfile(os.path.dirname(new_path))  # Abre a pasta contendo o arquivo
             except Exception as e:
                 messagebox.showerror("Erro", f"Erro ao renomear o arquivo:\n{e}")
+                print("Erro", f"Erro ao renomear o arquivo:\n{e}")
 
     def on_cancel():
+        os.startfile(os.path.dirname(pdf_path))  # Abre a pasta contendo o arquivo
         root.destroy()
-
 
 
     # Função para interpolar entre duas cores
@@ -261,6 +292,14 @@ def rename_pdf(pdf_path):
 
     # Selecionar a parte específica do texto
     root.after(20, lambda: entry.select_range(18, tk.END))  # Selecionar o texto de "PACIENTE - FUNCIONARIO"
+
+    #Conecta o evento de fechar a janela à função on_cancel
+    root.protocol("WM_DELETE_WINDOW", on_cancel)
+    root.protocol("<Unmap>", on_cancel)
+
+    # Remover o botão de minimizar (mas mantendo a barra de título)
+    root.resizable(False, False)  # Desabilita o redimensionamento
+    root.attributes('-toolwindow', True)  # Remove o botão de minimizar
 
     root.mainloop()
 
