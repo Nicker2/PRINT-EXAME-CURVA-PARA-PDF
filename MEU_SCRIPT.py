@@ -18,6 +18,7 @@ from tkinter import messagebox
 import random
 import math
 import re  # Importando para usar expressões regulares
+import threading
 
 
 # Caminhos para salvar o PDF e a imagem
@@ -137,6 +138,10 @@ start_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0,
 end_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 transition_factor = 0  # Fator de transição de 0 a 1
 
+# Variável global para o agendamento
+transition_job = None
+
+
 def rename_pdf(pdf_path):
     # Janela do Tkinter personalizada
     def on_rename():
@@ -182,6 +187,9 @@ def rename_pdf(pdf_path):
                 print("Erro", f"Erro ao renomear o arquivo:\n{e}")
 
     def on_cancel():
+        global transition_job
+        if transition_job:
+            root.after_cancel(transition_job)  # Cancela o agendamento da função
         os.startfile(os.path.dirname(pdf_path))  # Abre a pasta contendo o arquivo
         root.destroy()
 
@@ -228,8 +236,9 @@ def rename_pdf(pdf_path):
             start_color = end_color
             end_color = generate_soft_color()  # Gera novas cores suaves para a transição
 
-        # Chama a função novamente após 20 milissegundos (para suavidade)
-        root.after(30, lambda: smooth_bg_transition(start_color, end_color, transition_factor, label, button_frame))
+        # Chama a função novamente após 30 milissegundos (para suavidade)
+        transition_job = root.after(30, smooth_bg_transition, start_color, end_color, transition_factor, label, button_frame)
+
 
     root = tk.Tk()
     root.title("Renomear PDF")
@@ -256,7 +265,7 @@ def rename_pdf(pdf_path):
     root.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
 
     root.attributes('-topmost', True)
-    #root.config(bg="lightblue")
+    root.config(bg="lightblue")
 
     # Texto explicativo
     label = tk.Label(root, text="Escreva o nome do arquivo\nExemplo:\n01 MEDIDA CURVA - PACIENTE - FUNCIONARIO 123456 TE",
@@ -295,7 +304,6 @@ def rename_pdf(pdf_path):
 
     #Conecta o evento de fechar a janela à função on_cancel
     root.protocol("WM_DELETE_WINDOW", on_cancel)
-    root.protocol("<Unmap>", on_cancel)
 
     # Remover o botão de minimizar (mas mantendo a barra de título)
     root.resizable(False, False)  # Desabilita o redimensionamento
@@ -317,9 +325,8 @@ def on_f9(event):
             hide_all_notifications()  # Esconde todas as notificações
 
             notification_pdf = show_notification("PDF CRIADO COM SUCESSO", bg_color="green", text_color="white", width=450, height=150)
-            #time.sleep(1)
             os.startfile(pdf_path_f9)
-            time.sleep(1)
+            time.sleep(0.5)
             hide_all_notifications()  # Esconde todas as notificações
             print(f"PDF criado com sucesso em: {pdf_path_f9}")
             rename_pdf(pdf_path_f9)
@@ -355,7 +362,7 @@ def on_f8(event):
             time.sleep(1)
             hide_all_notifications()  # Esconde todas as notificações
             os.startfile(pdf_path_f8)
-            time.sleep(1)
+            time.sleep(0.5)
             print(f"PDF criado com sucesso em: {pdf_path_f8}")
             hide_all_notifications()  # Esconde todas as notificações
             rename_pdf(pdf_path_f8)
@@ -393,9 +400,8 @@ def on_scroll_lock(event):
             hide_all_notifications()  # Esconde todas as notificações
 
             notification_pdf = show_notification("PDF CRIADO COM SUCESSO", bg_color="green", text_color="white", width=450, height=150)
-            #time.sleep(1)
             os.startfile(pdf_path_scroll_lock)
-            time.sleep(1)
+            time.sleep(0.5)
             print(f"PDF criado com sucesso em: {pdf_path_scroll_lock}")
             hide_all_notifications()  # Esconde todas as notificações
             rename_pdf(pdf_path_scroll_lock)
