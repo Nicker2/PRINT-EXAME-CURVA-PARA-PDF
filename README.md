@@ -125,7 +125,7 @@ Este projeto está licenciado sob a licença **MIT**. Consulte o arquivo [LICENS
 <table align="center">
 <tr>
 <td align="center">
-<img src="https://www.google.com/search?q=https://avatars.githubusercontent.com/u/0%3Fv%3D4" width="100px;" alt=""/><br />
+<img src="https://www.google.com/search?q=https://avatars.githubusercontent.com/u/34519753?v=4" width="100px;" alt=""/><br />
 <sub><b>Nicolas Bonza Cavalari Borges</b></sub>
 </td>
 </tr>
